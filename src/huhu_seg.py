@@ -54,6 +54,7 @@ class WordTag(Enum):
     ul = 'ul'
     uv = 'uv'
     uz = 'uz'
+    un = 'un'
     vg = 'vg'
     v = 'v'
     vd = 'vd'
@@ -89,13 +90,14 @@ class WordTag(Enum):
 
 
 class Word:
-    def __init__(self, freq, tag, length) :
+    def __init__(self, freq, tag, length, word) :
         self.freq = freq
         self.tag = tag
         self.length = length
+        self.word = word
     def __str__(self) :
-        return ('[frequency %d | %s | length %d]' % (self.freq, 
-            self.tag.value, self.length))
+        return ('[frequency %d | %s | length %d] %s' % (self.freq, 
+            self.tag.value, self.length, self.word))
 
 
 class WordDict:
@@ -112,7 +114,7 @@ class WordDict:
             for line in f.readlines() :
                 word, freq, tag = line.split(' ')
                 tag = tag.strip()
-                self.dict[word] = Word(int(freq), WordTag[tag], len(word))
+                self.dict[word] = Word(int(freq), WordTag[tag], len(word), word)
                 if self.max_len < len(word) :
                     self.max_len = len(word)
     
@@ -121,15 +123,31 @@ class WordDict:
         return item
         
 
+class TreeNode:
+    
+    def __init__(self, value) :
+        self.value = value
+        self.children = []
+
+    def add_child(self, child) :
+        self.children.append(child)
+
+    def wfs(self, level) :
+        print(level, ' ', self.value)
+        for child in self.children :
+            child.wfs(level + 1)
+
+
 class Chunk:
 
-    def __init__(self, c1, c2 = None, c3 = None) :
+    def __init__(self, index_next, c1, c2 = None, c3 = None) :
         self.items = []
         self.items.append(c1)
         if c2 is not None :
             self.items.append(c2)
         if c3 is not None :
             self.items.append(c3)
+        self.index_next = index_next
 
     def total_length(self) :
         length = 0
@@ -154,28 +172,135 @@ class Chunk:
             sum += math.log(item.freq)
         return sum
 
+
+class Alphabeta:
+
+    def __init__(self, string) :
+        self.string = string
+
+    def __len__(self) :
+        return 1
+
+    def split(self, sep = None, maxsplit = -1) :
+        tmp_list = []
+        tmp_list.append(self.string)
+        return tmp_list
+
+
 class Segmentor:
 
     def __init__(self, text) :
         self.gram = list()
+        self.tokens = list()
+        self.chains = list()
         self.word_dict = WordDict()
         self.text = text
+        self.atomic_gram()
     
     def atomic_gram(self) :
+        alpha_flag = False
         for i in range(len(self.text)) :
-            self.gram.append(self.text[i])
+            if self.is_alphabeta(self.text[i]) :
+                if alpha_flag is False :
+                    tmp = self.text[i]
+                    alpha_flag = True
+                else :
+                    tmp += self.text[i]
+                continue
+            elif alpha_flag is True :
+                alpha_flag = False
+                item = Alphabeta(tmp)
+                self.gram.append(item)
+
             tmp = self.text[i]
+            item = self.text[i]
             for j in range(1, self.word_dict.max_len + 1) :
                 if i + j >= len(self.text) :
                     break
                 tmp += self.text[i + j]
                 if tmp in self.word_dict.dict :
-                    self.gram[i] = self.gram[i] + '/' + tmp
+                    item = item + '/' + tmp
                 else :
                     break
+            self.gram.append(item)
+        
+    def gen_gram_chain(self, value, index) :
+        tree_node = TreeNode(value)
+        if index >= len(self.gram) :
+            return tree_node
+        candidates = self.gram[index].split('/')
+        for candidate in candidates :
+            child = self.gen_gram_chain(candidate, index + len(candidate))
+            tree_node.add_child(child)
+        return tree_node
+    
+    def gen_chunks(self, index) :
+        if index >= len(self.gram) :
+            return None
+        while self.is_alsymbol(index) : 
+            index += 1
 
-s = Segmentor('小明硕士毕业于中国科学院计算所，后在日本京都大学深造')
-s.atomic_gram()
-print(s.gram)
+        words_a = self.gram[index].split('/')
+        words_b = None
+        words_c = None
+        chunks = []
+        for word_a in words_a :
+            word_a_item = self.word_dict.get(word_a)
+            if word_a_item is None :
+                word_a_item = Word(1, WordTag.un, 1, word_a)
+            index_next_b = index + len(word_a)
+            if (self.is_alsymbol(index_next_b) or 
+                    index_next_b >= len(self.gram)) :
+                chunks.append(Chunk(index_next_b, word_a_item))
+                continue
+            words_b = self.gram[index_next_b].split('/')
+            for word_b in words_b :
+                word_b_item = self.word_dict.get(word_b)
+                if word_b_item is None :
+                    word_b_item = Word(1, WordTag.un, 1, word_b)
+                index_next_c = index_next_b + len(word_b)
+                if (self.is_alsymbol(index_next_c) or 
+                        index_next_c >= len(self.gram)) :
+                    chunks.append(Chunk(index_next_c, word_a_item, word_b_item))
+                    continue
+                words_c = self.gram[index_next_c].split('/')
+                for word_c in words_c :
+                    word_c_item = self.word_dict.get(word_c)
+                    if word_c_item is None :
+                        word_c_item = Word(1, WordTag.un, 1, word_c)
+                    index_next = index_next_c + len(word_c)
+                    chunks.append(Chunk(index_next, word_a_item, word_b_item, word_c_item))
+        return chunks
+
+    def print_chunks(self, chunks) :
+        for chunk in chunks :
+            for item in chunk.items :
+                print(str(item), end = '\t')
+            print(' next@', chunk.index_next, self.gram[chunk.index_next])
+
+    def gen_tokens(self) :
+        pass
+
+    def is_alsymbol(self, index) :
+        if (isinstance(self.gram[index], Alphabeta) or
+        (self.gram[index] in self.word_dict.dict and 
+        self.word_dict.dict[self.gram[index]].tag.value[0] == 'w')) :
+            return True
+        else :
+            return False
+
+    def is_alphabeta(self, s) :
+        if len(s) > 1 :
+            return False
+        if (ord(s) >= 65 and ord(s) <= 90) or (ord(s) >= 97 and 
+                ord(s) <= 122) :
+            return True
+        else :
+            return False
+
+# s = Segmentor('小明硕士毕业于中国科学院SAP计算所,后在日本京都大学深造')
+s = Segmentor('李智伟高高兴兴以及王晓薇出去玩，后来智伟和晓薇又单独去玩了')
+c = s.gen_chunks(0)
+s.print_chunks(c)
 
 
