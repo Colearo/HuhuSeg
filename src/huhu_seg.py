@@ -104,7 +104,7 @@ class WordDict:
 
     def __init__(self) :
         self.path_name = os.path.join(os.path.dirname(__file__), os.pardir, 
-                'lexicon', 'dict.lex')
+                'lexicon', 'dict.segd')
         self.dict = dict()
         self.max_len = 0
         self.load()
