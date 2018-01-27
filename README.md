@@ -5,7 +5,7 @@ HuhuSeg implemented a simple but graceful words-gram generation enlightened by *
 
 ## How to use 
 We can just try to segment the Chinese texts like this :
-```
+```python
 s = Segmentor('为人民办公益')
 tokens = s.gen_tokens()
 for item in tokens:
