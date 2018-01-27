@@ -1,7 +1,7 @@
 # HuhuSeg
-Simple Chinese segmentor based on the four ambiguity-resolving rules by MMSEG[1] and examples.  
+Simple Chinese segmentor based on the four ambiguity-resolving rules by **MMSEG**[1] and examples.  
 
-HuhuSeg implemented a simple but graceful words-gram generation enlightened by HanLP[3]. And the dictionary(including the words tag and frequency) was included from `jieba`[2]. 
+HuhuSeg implemented a simple but graceful words-gram generation enlightened by **HanLP**[3]. And the dictionary(including the words tag and frequency) was included from **jieba**[2]. 
 
 ## How to use 
 We can just try to segment the Chinese texts like this :
@@ -23,5 +23,5 @@ And the output is :
 
 ## Referrence
 [1] [MMSEG: A Word Identification System for Mandarin Chinese Text Based on Two Variants of the Maximum Matching Algorithm](http://technology.chtsai.org/mmseg/)  
-[2] [fxsjy/jieba](https://github.com/fxsjy/jieba)
+[2] [fxsjy/jieba](https://github.com/fxsjy/jieba)  
 [3] [词图的生成](http://www.hankcs.com/nlp/segment/the-word-graph-is-generated.html)
