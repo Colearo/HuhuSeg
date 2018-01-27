@@ -181,10 +181,88 @@ class Alphabeta:
     def __len__(self) :
         return 1
 
+    def __str__(self) :
+        return self.string
+
     def split(self, sep = None, maxsplit = -1) :
         tmp_list = []
         tmp_list.append(self.string)
         return tmp_list
+
+class AmbiguityRes:
+
+    def __init__(self, chunks) :
+        self.chunks = chunks
+
+    def mm_rule(self) :
+        max_chunk_len = max(chunk.total_length() for chunk in self.chunks) 
+        candidates = list()
+        for chunk in self.chunks :
+            if chunk.total_length() == max_chunk_len :
+                candidates.append(chunk)
+        if len(candidates) == 1 :
+            return candidates, True
+        else :
+            return candidates, False
+
+    def lawl_rule(self) :
+        max_chunk_av = max(chunk.average_length() for chunk in 
+                self.chunks) 
+        candidates = list()
+        for chunk in self.chunks :
+            if chunk.average_length() == max_chunk_av :
+                candidates.append(chunk)
+        if len(candidates) == 1 :
+            return candidates, True
+        else :
+            return candidates, False
+
+    def svowl_rule(self) :
+        min_chunk_var = min(chunk.variance() for chunk in self.chunks)
+        candidates = list()
+        for chunk in self.chunks :
+            if chunk.variance() == min_chunk_var :
+                candidates.append(chunk)
+        if len(candidates) == 1 :
+            return candidates, True
+        else :
+            return candidates, False
+
+    def lsodomfoow_rule(self) :
+        max_chunk_free = max(chunk.free_mor_degree() for chunk in 
+                self.chunks)
+        candidates = list()
+        for chunk in self.chunks :
+            if chunk.free_mor_degree() == max_chunk_free :
+                candidates.append(chunk)
+        if len(candidates) == 1 :
+            return candidates, True
+        else :
+            return candidates, False
+
+    def exec_rules(self) :
+        chunks, succ = self.mm_rule()
+        if succ is True :
+            return chunks[0]
+        self.chunks = chunks
+
+        chunks, succ = self.lawl_rule()
+        if succ is True :
+            return chunks[0]
+        self.chunks = chunks
+
+        chunks, succ = self.svowl_rule()
+        if succ is True :
+            return chunks[0]
+        self.chunks = chunks
+
+        chunks, succ = self.lsodomfoow_rule()
+        if succ is True :
+            return chunks[0]
+        self.chunks = chunks
+
+        print('No rule works')
+        return self.chunks[0]
 
 
 class Segmentor:
@@ -220,8 +298,6 @@ class Segmentor:
                 tmp += self.text[i + j]
                 if tmp in self.word_dict.dict :
                     item = item + '/' + tmp
-                else :
-                    break
             self.gram.append(item)
         
     def gen_gram_chain(self, value, index) :
@@ -235,11 +311,6 @@ class Segmentor:
         return tree_node
     
     def gen_chunks(self, index) :
-        if index >= len(self.gram) :
-            return None
-        while self.is_alsymbol(index) : 
-            index += 1
-
         words_a = self.gram[index].split('/')
         words_b = None
         words_c = None
@@ -249,8 +320,8 @@ class Segmentor:
             if word_a_item is None :
                 word_a_item = Word(1, WordTag.un, 1, word_a)
             index_next_b = index + len(word_a)
-            if (self.is_alsymbol(index_next_b) or 
-                    index_next_b >= len(self.gram)) :
+            if (index_next_b >= len(self.gram) or 
+                    self.is_alsymbol(index_next_b)) :
                 chunks.append(Chunk(index_next_b, word_a_item))
                 continue
             words_b = self.gram[index_next_b].split('/')
@@ -259,9 +330,10 @@ class Segmentor:
                 if word_b_item is None :
                     word_b_item = Word(1, WordTag.un, 1, word_b)
                 index_next_c = index_next_b + len(word_b)
-                if (self.is_alsymbol(index_next_c) or 
-                        index_next_c >= len(self.gram)) :
-                    chunks.append(Chunk(index_next_c, word_a_item, word_b_item))
+                if (index_next_c >= len(self.gram) or 
+                        self.is_alsymbol(index_next_c)) :
+                    chunks.append(Chunk(index_next_c, word_a_item, 
+                        word_b_item))
                     continue
                 words_c = self.gram[index_next_c].split('/')
                 for word_c in words_c :
@@ -269,17 +341,50 @@ class Segmentor:
                     if word_c_item is None :
                         word_c_item = Word(1, WordTag.un, 1, word_c)
                     index_next = index_next_c + len(word_c)
-                    chunks.append(Chunk(index_next, word_a_item, word_b_item, word_c_item))
+                    chunks.append(Chunk(index_next, word_a_item, 
+                        word_b_item, word_c_item))
         return chunks
 
     def print_chunks(self, chunks) :
         for chunk in chunks :
             for item in chunk.items :
                 print(str(item), end = '\t')
-            print(' next@', chunk.index_next, self.gram[chunk.index_next])
+            if chunk.index_next >= len(self.gram) :
+                index_next = '#end'
+            else :
+                index_next = self.gram[chunk.index_next]
+            print(' next@', chunk.index_next, index_next)
 
     def gen_tokens(self) :
-        pass
+        index = 0
+        while index < len(self.gram) :
+            if self.is_alsymbol(index) : 
+                token = self.word_dict.get(self.gram[index])
+                if token is None :
+                    token = Word(1, WordTag.un, 1, self.gram[index])
+                self.tokens.append(token)
+                index += 1
+                continue
+            words = self.gram[index].split('/')
+            if len(words) == 1 :
+                token = self.word_dict.get(self.gram[index])
+                if token is None :
+                    token = Word(1, WordTag.un, 1, self.gram[index])
+                self.tokens.append(token)
+                index += 1
+                continue
+
+            chunks = self.gen_chunks(index)
+            if len(chunks) == 1 :
+                chunk = chunks[0]
+            else :
+                rule = AmbiguityRes(chunks)
+                chunk = rule.exec_rules()
+            for item in chunk.items :
+                self.tokens.append(item)
+                index = chunk.index_next
+
+        return self.tokens
 
     def is_alsymbol(self, index) :
         if (isinstance(self.gram[index], Alphabeta) or
@@ -299,8 +404,11 @@ class Segmentor:
             return False
 
 # s = Segmentor('小明硕士毕业于中国科学院SAP计算所,后在日本京都大学深造')
-s = Segmentor('李智伟高高兴兴以及王晓薇出去玩，后来智伟和晓薇又单独去玩了')
-c = s.gen_chunks(0)
-s.print_chunks(c)
+# s = Segmentor('李智伟高高兴兴王晓薇出去玩，后来智伟和晓薇又单独去玩了')
+s = Segmentor('为人民办公益')
+print(s.gram)
+t = s.gen_tokens()
+for i in t:
+    print(str(i))
 
 
