@@ -20,6 +20,12 @@ And the output is :
 [frequency 404 | n | length 2] 公益
 ```
   
+## TO-DO List
+The TO-DO below shows what I have done and the next-steps :  
+- [x] Implementation of MMSEG segmentor
+- [ ] Optimization for dictionary indexing
+- [ ] Recognization of Chinese person names
+- [ ] Keywords extraction
 
 ## Referrence
 [1] [MMSEG: A Word Identification System for Mandarin Chinese Text Based on Two Variants of the Maximum Matching Algorithm](http://technology.chtsai.org/mmseg/)  
