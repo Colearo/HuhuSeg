@@ -25,27 +25,27 @@ class IdfDict:
  
 class KeywordsEx:
 
+    idf = IdfDict()
+
     def __init__(self, passage) :
-        self.idf = IdfDict()
         self.passage = passage
         self.segmentor = Segmentor(passage)
-        self.tokens = self.segmentor.gen_tokens()
         self.keywords = dict()
         self.freqs = dict()
         self.word_num = 0
 
     def extract(self, top_n = 5) :
-        for token in self.tokens :
-            if token.word in self.idf.dict :
+        tokens = self.segmentor.gen_key_tokens()
+        for token in tokens :
+            if token.word in KeywordsEx.idf.dict :
                 self.word_num += 1
                 try :
                     self.freqs[token.word] += 1
                 except KeyError :
                     self.freqs[token.word] = 1
         for word, freq in iter(self.freqs.items()) :
-            self.keywords[word] = float(freq/self.word_num) * self.idf.dict[word]
+            self.keywords[word] = float(freq/self.word_num) * KeywordsEx.idf.dict[word]
         top_list = sorted(iter(self.keywords.items()), key = lambda d:d[1], reverse = True)
         return top_list[0 : top_n]
-
 
 

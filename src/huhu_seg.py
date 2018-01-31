@@ -17,6 +17,7 @@ class WordTag(Enum):
     d = 'd'
     df = 'df'
     e = 'e'
+    eng = 'eng'
     f = 'f'
     g = 'g'
     h = 'h'
@@ -267,18 +268,18 @@ class AmbiguityRes:
 
 class Segmentor:
 
+    word_dict = WordDict()
+
     def __init__(self, text) :
         self.gram = list()
         self.tokens = list()
-        self.chains = list()
-        self.word_dict = WordDict()
         self.text = text
         self.atomic_gram()
     
     def atomic_gram(self) :
         alpha_flag = False
         for i in range(len(self.text)) :
-            if self.is_alphabeta(self.text[i]) :
+            if self.is_alphabeta(self.text[i]) or self.is_digit(self.text[i]) :
                 if alpha_flag is False :
                     tmp = self.text[i]
                     alpha_flag = True
@@ -292,11 +293,11 @@ class Segmentor:
 
             tmp = self.text[i]
             item = self.text[i]
-            for j in range(1, self.word_dict.max_len + 1) :
+            for j in range(1, Segmentor.word_dict.max_len + 1) :
                 if i + j >= len(self.text) :
                     break
                 tmp += self.text[i + j]
-                if tmp in self.word_dict.dict :
+                if tmp in Segmentor.word_dict.dict :
                     item = item + '/' + tmp
             self.gram.append(item)
         
@@ -316,7 +317,7 @@ class Segmentor:
         words_c = None
         chunks = []
         for word_a in words_a :
-            word_a_item = self.word_dict.get(word_a)
+            word_a_item = Segmentor.word_dict.get(word_a)
             if word_a_item is None :
                 word_a_item = Word(1, WordTag.un, 1, word_a)
             index_next_b = index + len(word_a)
@@ -326,7 +327,7 @@ class Segmentor:
                 continue
             words_b = self.gram[index_next_b].split('/')
             for word_b in words_b :
-                word_b_item = self.word_dict.get(word_b)
+                word_b_item = Segmentor.word_dict.get(word_b)
                 if word_b_item is None :
                     word_b_item = Word(1, WordTag.un, 1, word_b)
                 index_next_c = index_next_b + len(word_b)
@@ -337,7 +338,7 @@ class Segmentor:
                     continue
                 words_c = self.gram[index_next_c].split('/')
                 for word_c in words_c :
-                    word_c_item = self.word_dict.get(word_c)
+                    word_c_item = Segmentor.word_dict.get(word_c)
                     if word_c_item is None :
                         word_c_item = Word(1, WordTag.un, 1, word_c)
                     index_next = index_next_c + len(word_c)
@@ -359,15 +360,15 @@ class Segmentor:
         index = 0
         while index < len(self.gram) :
             if self.is_alsymbol(index) : 
-                token = self.word_dict.get(self.gram[index])
+                token = Segmentor.word_dict.get(self.gram[index])
                 if token is None :
-                    token = Word(1, WordTag.un, 1, self.gram[index])
+                    token = Word(1, WordTag.x, 1, self.gram[index])
                 self.tokens.append(token)
                 index += 1
                 continue
             words = self.gram[index].split('/')
             if len(words) == 1 :
-                token = self.word_dict.get(self.gram[index])
+                token = Segmentor.word_dict.get(self.gram[index])
                 if token is None :
                     token = Word(1, WordTag.un, 1, self.gram[index])
                 self.tokens.append(token)
@@ -386,10 +387,20 @@ class Segmentor:
 
         return self.tokens
 
+    def gen_key_tokens(self) :
+        tokens = self.gen_tokens()
+        key_tokens = list()
+        for token in tokens :
+            if (token.tag == WordTag.p or token.tag == WordTag.x or
+                    token.tag.value[0] == 'w' or token.tag == WordTag.r) :
+                continue
+            key_tokens.append(token)
+        return key_tokens
+
     def is_alsymbol(self, index) :
         if (isinstance(self.gram[index], Alphabeta) or
-        (self.gram[index] in self.word_dict.dict and 
-        self.word_dict.dict[self.gram[index]].tag.value[0] == 'w')) :
+        (self.gram[index] in Segmentor.word_dict.dict and 
+        Segmentor.word_dict.dict[self.gram[index]].tag.value[0] == 'w')) :
             return True
         else :
             return False
@@ -402,5 +413,15 @@ class Segmentor:
             return True
         else :
             return False
+
+    def is_digit(self, s) :
+        if len(s) > 1 :
+            return False
+        if ord(s) >= 48 and ord(s) <= 57 :
+            return True
+        else :
+            return False
+
+
 
 
