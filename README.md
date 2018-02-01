@@ -19,6 +19,8 @@ pip3 install HuhuSeg
 We can just try to segment the Chinese texts like this :  
 
 ```python
+from huhu_seg.segmentor import Segmentor
+
 s = Segmentor('为人民办公益')
 tokens = s.gen_tokens()
 for item in tokens:
@@ -40,6 +42,8 @@ HuhuSeg基于**TF-IDF**[4]算法实现了一个关键词提取器，IDF词频模
 Now HuhuSeg supports the keywords extraction based on the **TF-IDF**[4]. Just have a try like :  
 
 ```python
+from huhu_seg.tfidf import KeywordsEx
+
 k = KeywordsEx('程序员(英文Programmer)是从事程序开发、维护的专业人员。一般将程序员分为程序设计人员和程序编码人员，但两者的界限并不非常清楚，特别是在中国。软件从业人员分为初级程序员、高级程序员、系统分析员和项目经理四大类。')
 list = k.extract()
 for word, freq in list :
@@ -61,6 +65,8 @@ Output is :
 By **TextRank**[5], we can escape those huge and overwhelming IDF dictionaries, and try to find the relationship of words between the co-occuring gragh. As you can see in this output, we have a little trick to extract the better keywords with meaningful semantics: the extractor may scan the whole text to find if there are top keywords could construct the phrase. If it is true, we select them and build new keywords table. In the test, it seems to have the effective and better results.  
 
 ```python
+from huhu_seg.textrank import TextRank
+
 t = TextRank("""《旅行青蛙》目前仍是App Store中国区免费游戏下载榜榜首。
 一款放置类休闲手游，在没有汉化版的情况下，打败一众试图将玩家拽入沉迷的“肝系游戏”，达成了一个不大不小的奇迹。
 《旅行青蛙》的玩法极其简单，玩家只需采集庭院里的四叶草为青蛙购置旅行使用的便当、道具、护身符三样物品，为旅行蛙做好出门旅行的准备就可以了。游戏里的等待多过操作，也有人把它当成当下最火的“佛系”说法里的“佛系游戏”。
