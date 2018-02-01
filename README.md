@@ -7,6 +7,12 @@ Simple Chinese segmentor based on the four ambiguity-resolving rules by **MMSEG*
 HuhuSeg implemented a simple but graceful words-gram generation enlightened by **HanLP**[3]. And the dictionary(including the words tag and frequency) was included from **jieba**[2].  
 
 ## How-to use 
+### Installation  
+
+```
+pip3 install HuhuSeg
+```
+
 ### Segmentation  
 
 如下代码为分词器的使用方式：    
