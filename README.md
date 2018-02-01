@@ -45,7 +45,7 @@ Output is :
 
 ### TextRank Keywords Extraction
 
-By TextRank, we can escape those huge and overwhelming IDF dictionaries, and try to find the relationship of words between the co-occuring gragh. As you can see in this output, we have a little trick to extract the better keywords with meaningful semantics: the extractor may scan the whole text to find if there are top keywords could construct the phrase. If it is true, we select them and build new keywords table. In the test, it seems to have the effective and better results.  
+By TextRank[5], we can escape those huge and overwhelming IDF dictionaries, and try to find the relationship of words between the co-occuring gragh. As you can see in this output, we have a little trick to extract the better keywords with meaningful semantics: the extractor may scan the whole text to find if there are top keywords could construct the phrase. If it is true, we select them and build new keywords table. In the test, it seems to have the effective and better results.  
 
 ```python
 t = TextRank("""《旅行青蛙》目前仍是App Store中国区免费游戏下载榜榜首。
@@ -93,7 +93,6 @@ We can see the output :
 [玩家 4.801199]
 [中国 3.508624]
 [用户 3.118792]
-
 ```
 
   
