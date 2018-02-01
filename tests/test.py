@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from huhu_seg.huhu_seg import Segmentor
+from huhu_seg.segmentor import Segmentor
 
 # s = Segmentor('小明硕士毕业于中国科学院SAP计算所,后在日本京都大学深造')
 # s = Segmentor('李智伟高高兴兴王晓薇出去玩，后来智伟和晓薇又单独去玩了')
