@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy
-from .huhu_seg import Segmentor
+from .segmentor import Segmentor
 
 class TextRank :
 

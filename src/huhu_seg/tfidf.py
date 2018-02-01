@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from .huhu_seg import Segmentor
+from .segmentor import Segmentor
 
 class IdfDict:
 
@@ -37,14 +37,14 @@ class TFIDF:
     def extract_kw(self, top_n = 5) :
         tokens = self.segmentor.gen_tokens()
         for token in tokens :
-            if token.word in KeywordsEx.idf.dict :
+            if token.word in TFIDF.idf.dict :
                 self.word_num += 1
                 try :
                     self.freqs[token.word] += 1
                 except KeyError :
                     self.freqs[token.word] = 1
         for word, freq in iter(self.freqs.items()) :
-            self.keywords[word] = float(freq/self.word_num) * KeywordsEx.idf.dict[word]
+            self.keywords[word] = float(freq/self.word_num) * TFIDF.idf.dict[word]
         top_list_candidate = sorted(iter(self.keywords.items()), key = lambda d:d[1], reverse = True)
         top_list_candidate = top_list_candidate[0 : top_n * 2]
         top_list = dict(top_list_candidate)
