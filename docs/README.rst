@@ -23,7 +23,8 @@ Installation
 Segmentation
 ~~~~~~~~~~~~
 
-如下代码为分词器的使用方式：   
+如下代码为分词器的使用方式：
+
 We can just try to segment the Chinese texts like this :  
 
 .. code:: python
