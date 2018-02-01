@@ -387,15 +387,34 @@ class Segmentor:
 
         return self.tokens
 
-    def gen_key_tokens(self) :
+    def gen_key_tokens(self, pos = False) :
         tokens = self.gen_tokens()
         key_tokens = list()
+        index = -1
         for token in tokens :
+            index += 1
             if (token.tag == WordTag.p or token.tag == WordTag.x or
-                    token.tag.value[0] == 'w' or token.tag == WordTag.r) :
+                    token.tag.value[0] == 'w' or token.tag == WordTag.r or
+                    token.tag == WordTag.c or token.tag == WordTag.m or
+                    token.tag.value[0] == 'u' or token.length == 1) :
                 continue
-            key_tokens.append(token)
+            if pos is False :
+                key_tokens.append(token)
+            else :
+                key_tokens.append((token, index))
+
         return key_tokens
+
+    def gen_word_couples(self) :
+        tokens = self.gen_key_tokens(pos = True)
+        word_couples = list()
+        index = 0
+        for token, pos in tokens :
+            if pos - 1 >= 0 and index - 1 >= 0 and tokens[index - 1][1] == pos - 1 :
+                word = (tokens[index - 1][0].word, tokens[index][0].word)
+                word_couples.append(word)
+            index += 1
+        return word_couples
 
     def is_alsymbol(self, index) :
         if (isinstance(self.gram[index], Alphabeta) or

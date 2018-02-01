@@ -35,7 +35,7 @@ class KeywordsEx:
         self.word_num = 0
 
     def extract(self, top_n = 5) :
-        tokens = self.segmentor.gen_key_tokens()
+        tokens = self.segmentor.gen_tokens()
         for token in tokens :
             if token.word in KeywordsEx.idf.dict :
                 self.word_num += 1
@@ -45,7 +45,18 @@ class KeywordsEx:
                     self.freqs[token.word] = 1
         for word, freq in iter(self.freqs.items()) :
             self.keywords[word] = float(freq/self.word_num) * KeywordsEx.idf.dict[word]
-        top_list = sorted(iter(self.keywords.items()), key = lambda d:d[1], reverse = True)
+        top_list_candidate = sorted(iter(self.keywords.items()), key = lambda d:d[1], reverse = True)
+        top_list_candidate = top_list_candidate[0 : top_n * 2]
+        top_list = dict(top_list_candidate)
+        word_couples = self.segmentor.gen_word_couples()
+        for word_a, word_b in word_couples :
+            if (word_a + word_b not in top_list.keys() and 
+                    word_a in top_list.keys() and word_b in top_list.keys()) :
+                top_list[word_a + word_b] = top_list[word_a] + top_list[word_b]
+                top_list.pop(word_a)
+                top_list.pop(word_b)
+        top_list = sorted(iter(top_list.items()), key = lambda d:d[1], reverse = True)
+
         return top_list[0 : top_n]
 
 
