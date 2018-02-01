@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-from huhu_seg import Segmentor
+from .huhu_seg import Segmentor
 
 class IdfDict:
 
     def __init__(self) :
-        self.path_name = os.path.join(os.path.dirname(__file__), os.pardir, 
-                'lexicon', 'wiki_idf_986891')
+        self.path_name = os.path.join(os.path.dirname(__file__), 
+                'lexicon', 'wiki_idf_986891.segd')
         self.dict = dict()
         self.load()
 

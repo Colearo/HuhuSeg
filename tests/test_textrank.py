@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from textrank import TextRank
+from huhu_seg.textrank import TextRank
 
 t = TextRank("""《旅行青蛙》目前仍是App Store中国区免费游戏下载榜榜首。
 一款放置类休闲手游，在没有汉化版的情况下，打败一众试图将玩家拽入沉迷的“肝系游戏”，达成了一个不大不小的奇迹。

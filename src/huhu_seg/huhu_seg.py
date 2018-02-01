@@ -104,7 +104,7 @@ class Word:
 class WordDict:
 
     def __init__(self) :
-        self.path_name = os.path.join(os.path.dirname(__file__), os.pardir, 
+        self.path_name = os.path.join(os.path.dirname(__file__), 
                 'lexicon', 'dict.segd')
         self.dict = dict()
         self.max_len = 0
@@ -440,7 +440,6 @@ class Segmentor:
             return True
         else :
             return False
-
 
 
 
