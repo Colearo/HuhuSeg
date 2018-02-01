@@ -23,7 +23,7 @@ class IdfDict:
         item = self.dict.get(word)
         return item
  
-class KeywordsEx:
+class TFIDF:
 
     idf = IdfDict()
 
@@ -34,7 +34,7 @@ class KeywordsEx:
         self.freqs = dict()
         self.word_num = 0
 
-    def extract(self, top_n = 5) :
+    def extract_kw(self, top_n = 5) :
         tokens = self.segmentor.gen_tokens()
         for token in tokens :
             if token.word in KeywordsEx.idf.dict :

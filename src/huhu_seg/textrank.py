@@ -76,7 +76,7 @@ class TextRank :
                 break
             times += 1
 
-    def extract(self, top_n = 5) :
+    def extract_kw(self, top_n = 5) :
         self.power_iteration()
         self.top_n = dict()
         index = 0

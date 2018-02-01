@@ -7,25 +7,24 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-
 setup(
-    name='HuhuSeg',  # Required
+    name='HuhuSeg',   
 
-    version='0.2.1',  # Required
+    version='0.2.11',  
 
-    description='Simple Chinese segmentator, keywords extractor and other examples',  # Required
+    description='Simple Chinese segmentator, keywords extractor and other examples',  
 
     url = 'https://github.com/Colearo/HuhuSeg',
 
-    author='Kechen Lu',  # Optional
+    author='Kechen Lu',  
 
-    author_email='colearolu@icloud.com',  # Optional
+    author_email='colearolu@icloud.com',  
 
     license='GNU General Public License v3 (GPLv3)',
 
     long_description=long_description,
 
-    classifiers=[  # Optional
+    classifiers=[  
         'Development Status :: 3 - Alpha',
 
         'Intended Audience :: Developers',
@@ -38,12 +37,12 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
 
-    keywords='chinese-segmentation keywords-extraction nlp',  # Optional
+    keywords='chinese-segmentation keywords-extraction nlp',  
 
     packages=['huhu_seg'], 
     package_dir={'huhu_seg': 'src/huhu_seg'},
 
-    install_requires=['numpy'],  # Optional
+    install_requires=['numpy'],  
 
     package_data={'huhu_seg': ['lexicon/*.segd']}, 
 
