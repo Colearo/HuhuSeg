@@ -1,12 +1,17 @@
 # HuhuSeg
+
+HuhuSeg是一个基于**MMSEG**[1]的四种消歧规则和最大匹配方式的简单中文分词器，只有数百行代码。
 Simple Chinese segmentor based on the four ambiguity-resolving rules by **MMSEG**[1] and examples.  
 
-HuhuSeg implemented a simple but graceful words-gram generation enlightened by **HanLP**[3]. And the dictionary(including the words tag and frequency) was included from **jieba**[2]. 
+同时HuhuSeg实现了一个简单但是非常高效的词图生成方式，由**HanLP**[3]的启发而来。同时核心词典直接使用了**jieba**[2]的词频词典。
+HuhuSeg implemented a simple but graceful words-gram generation enlightened by **HanLP**[3]. And the dictionary(including the words tag and frequency) was included from **jieba**[2].  
 
-## How to use 
-### Segmentation
+## How-to use 
+### Segmentation  
 
-We can just try to segment the Chinese texts like this :
+如下代码为分词器的使用方式：  
+We can just try to segment the Chinese texts like this :  
+
 ```python
 s = Segmentor('为人民办公益')
 tokens = s.gen_tokens()
@@ -23,9 +28,10 @@ And the output is :
 ```
 
 ### Keywords Extraction
+#### TF-IDF Keywords Extraction
 
-### TF-IDF Keywords Extraction
-Now HuhuSeg supports the keywords extraction based on the TF-IDF[4]. Just have a try like :  
+HuhuSeg基于**TF-IDF**[4]算法实现了一个关键词提取器，IDF词频模型来源于针对接近100万条的wiki中文词条的分词统计，如下为使用方式： 
+Now HuhuSeg supports the keywords extraction based on the **TF-IDF**[4]. Just have a try like :  
 
 ```python
 k = KeywordsEx('程序员(英文Programmer)是从事程序开发、维护的专业人员。一般将程序员分为程序设计人员和程序编码人员，但两者的界限并不非常清楚，特别是在中国。软件从业人员分为初级程序员、高级程序员、系统分析员和项目经理四大类。')
@@ -43,9 +49,10 @@ Output is :
 [项目经理 0.231476]
 ```
 
-### TextRank Keywords Extraction
+#### TextRank Keywords Extraction
 
-By TextRank[5], we can escape those huge and overwhelming IDF dictionaries, and try to find the relationship of words between the co-occuring gragh. As you can see in this output, we have a little trick to extract the better keywords with meaningful semantics: the extractor may scan the whole text to find if there are top keywords could construct the phrase. If it is true, we select them and build new keywords table. In the test, it seems to have the effective and better results.  
+在TF-IDF实现的关键词提取之外，这里还实现了基于**TextRank**[5]的提取算法，不依赖于庞大的IDF模型，而是试图在文本中词语的共现关系图里找到被Rank最高的词语。当然，除此之外，这里的代码实现的关键词提取还使用了一个小trick，在通过TextRank提取完关键词之后，会再次扫描文本，找到top关键词中是否有邻接词可以组成短语，如下面的提取“旅行青蛙”和“开发游戏”即是通过这种方式提取出来的。
+By **TextRank**[5], we can escape those huge and overwhelming IDF dictionaries, and try to find the relationship of words between the co-occuring gragh. As you can see in this output, we have a little trick to extract the better keywords with meaningful semantics: the extractor may scan the whole text to find if there are top keywords could construct the phrase. If it is true, we select them and build new keywords table. In the test, it seems to have the effective and better results.  
 
 ```python
 t = TextRank("""《旅行青蛙》目前仍是App Store中国区免费游戏下载榜榜首。
