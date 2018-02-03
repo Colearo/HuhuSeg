@@ -123,6 +123,19 @@ class WordDict:
         item = self.dict.get(word)
         return item
         
+class StopDict:
+
+    def __init__(self) :
+        self.path_name = os.path.join(os.path.dirname(__file__), 
+                'lexicon', 'stop_words.segd')
+        self.dict = list()
+        self.load()
+
+    def load(self) :
+        with open(self.path_name) as f :
+            for line in f.readlines() :
+                word = line.strip()
+                self.dict.append(word) 
 
 class TreeNode:
     
@@ -269,6 +282,7 @@ class AmbiguityRes:
 class Segmentor:
 
     word_dict = WordDict()
+    stop_dict = StopDict()
 
     def __init__(self, text) :
         self.gram = list()
@@ -399,7 +413,8 @@ class Segmentor:
             if (token.tag == WordTag.p or token.tag == WordTag.x or
                     token.tag.value[0] == 'w' or token.tag == WordTag.r or
                     token.tag == WordTag.c or token.tag == WordTag.m or
-                    token.tag.value[0] == 'u' or token.length == 1) :
+                    token.tag.value[0] == 'u' or token.tag == WordTag.t or
+                    token.word in Segmentor.stop_dict.dict) :
                 continue
             if pos is False :
                 key_tokens.append(token)
