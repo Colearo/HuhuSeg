@@ -279,6 +279,8 @@ class Segmentor:
     def atomic_gram(self) :
         alpha_flag = False
         for i in range(len(self.text)) :
+            if self.text[i].strip() == '' :
+                continue
             if self.is_alphabeta(self.text[i]) or self.is_digit(self.text[i]) :
                 if alpha_flag is False :
                     tmp = self.text[i]
@@ -366,6 +368,7 @@ class Segmentor:
                 self.tokens.append(token)
                 index += 1
                 continue
+
             words = self.gram[index].split('/')
             if len(words) == 1 :
                 token = Segmentor.word_dict.get(self.gram[index])
@@ -419,7 +422,8 @@ class Segmentor:
     def is_alsymbol(self, index) :
         if (isinstance(self.gram[index], Alphabeta) or
         (self.gram[index] in Segmentor.word_dict.dict and 
-        Segmentor.word_dict.dict[self.gram[index]].tag.value[0] == 'w')) :
+        Segmentor.word_dict.dict[self.gram[index]].tag.value[0] == 'w')
+        or self.gram[index] == '/') :
             return True
         else :
             return False
