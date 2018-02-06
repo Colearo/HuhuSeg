@@ -414,7 +414,8 @@ class Segmentor:
                     token.tag.value[0] == 'w' or token.tag == WordTag.r or
                     token.tag == WordTag.c or token.tag == WordTag.m or
                     token.tag.value[0] == 'u' or token.tag == WordTag.t or
-                    token.word in Segmentor.stop_dict.dict) :
+                    token.word in Segmentor.stop_dict.dict or 
+                    token.length == 1) :
                 continue
             if pos is False :
                 key_tokens.append(token)

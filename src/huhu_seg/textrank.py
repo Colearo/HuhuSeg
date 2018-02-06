@@ -91,8 +91,12 @@ class TextRank :
             if (word_a + word_b not in top_list.keys() and 
                     word_a in top_list.keys() and word_b in top_list.keys()) :
                 top_list[word_a + word_b] = top_list[word_a] + top_list[word_b]
-                top_list.pop(word_a)
-                top_list.pop(word_b)
+                try :
+                    top_list.pop(word_a)
+                    top_list.pop(word_b)
+                except :
+                    pass
+
         top_list = sorted(iter(top_list.items()), key = lambda d:d[1], reverse = True)
             
         return top_list[0 : top_n]
