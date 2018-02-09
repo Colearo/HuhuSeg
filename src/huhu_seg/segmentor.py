@@ -107,6 +107,7 @@ class WordDict:
         self.path_name = os.path.join(os.path.dirname(__file__), 
                 'lexicon', 'dict.segd')
         self.dict = dict()
+        self.index_dict = dict()
         self.max_len = 0
         self.load()
 
@@ -118,6 +119,13 @@ class WordDict:
                 self.dict[word] = Word(int(freq), WordTag[tag], len(word), word)
                 if self.max_len < len(word) :
                     self.max_len = len(word)
+
+    def load_index_dict(self) :
+        if len(self.index_dict) == 0 :
+            index = 0
+            for item in self.dict :
+                self.dict[item.word] = index 
+                index += 1
     
     def get(self, word) :
         item = self.dict.get(word)

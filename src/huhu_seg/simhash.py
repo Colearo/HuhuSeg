@@ -61,15 +61,16 @@ class SimHash:
             xor &= xor - 1
         return tot
 
-    def similarity(self, other, threshold = 5) :
+    def similarity(self, other, threshold = 0.8) :
         hash_a = int('0b' + self.simhash, 2)
         hash_b = int('0b' + other.simhash, 2)
 
         dis = self.hamming_distance(hash_a, hash_b)
+        sim = float(self.code_bit - dis) / self.code_bit 
         print('Hamming Distance is ', dis)
+        print('Similarity is %f' % sim)
         if dis > threshold :
             return False
         else :
             return True
-        
 
