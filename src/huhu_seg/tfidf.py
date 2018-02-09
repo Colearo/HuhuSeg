@@ -34,8 +34,8 @@ class TFIDF:
         self.freqs = dict()
         self.word_num = 0
 
-    def extract_kw(self, top_n = 5) :
-        tokens = self.segmentor.gen_tokens()
+    def extract_kw(self, top_n = 5, combine_mode = False) :
+        tokens = self.segmentor.gen_key_tokens()
         for token in tokens :
             if token.word in TFIDF.idf.dict :
                 self.word_num += 1
@@ -46,7 +46,12 @@ class TFIDF:
         for word, freq in iter(self.freqs.items()) :
             self.keywords[word] = float(freq/self.word_num) * TFIDF.idf.dict[word]
         top_list_candidate = sorted(iter(self.keywords.items()), key = lambda d:d[1], reverse = True)
-        top_list_candidate = top_list_candidate[0 : top_n * 2]
+
+        if combine_mode is False :
+            return top_list_candidate[0 : top_n]
+
+        if top_n * 2 < len(top_list_candidate) :
+            top_list_candidate = top_list_candidate[0 : top_n * 2]
         top_list = dict(top_list_candidate)
         word_couples = self.segmentor.gen_word_couples()
         for word_a, word_b in word_couples :

@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 from huhu_seg.tfidf import TFIDF
 
@@ -37,6 +37,6 @@ Hit-Point：在未来的更新中，我们将首先增加青蛙将参观的地�
 界面：之前的作品《猫咪后院》已经有了丰富的周边衍生品开发，比如电影等，《青蛙旅行》会不会有相关考虑？
 Hit-Point：对于衍生产品，如果可能的话，我们一定会进行开发。很难想象《猫咪后院》最后拍成了电影，但是游戏的世界观和人物设定是可以以各种方式利用的，所以谁会想到未来会发生什么呢？""")
 
-list = k.extract_kw()
+list = k.extract_kw(top_n = 10, combine_mode = False)
 for word, freq in list :
     print('[%s %f]' % (word, freq))
