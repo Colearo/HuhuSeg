@@ -138,7 +138,7 @@ Similarity of Texts
 SimHash
 ^^^^^^^
 
-  **SimHash** [6]_, proposed by MS Charikar, as a LSH(Locality Sensitive Hash), can be used to detect the similarity of two passages. There is a simple implementation; by the IDF Model we have and the tfidf keywords extraction, we extract those Top-200 feature words and hash them. Summing and normalizing, we get the SimHash fingerprint. All is done, now we just compute the two's Hamming Distance, and the similarity is represented by the distance.
+**SimHash** [6]_ , proposed by MS Charikar, as a LSH(Locality Sensitive Hash), can be used to detect the similarity of two passages. There is a simple implementation; by the IDF Model we have and the tfidf keywords extraction, we extract those Top-200 feature words and hash them. Summing and normalizing, we get the SimHash fingerprint. All is done, now we just compute the two's Hamming Distance, and the similarity is represented by the distance.
 
 We can have a try :  
 
@@ -227,3 +227,4 @@ Referrence
 .. [4] [News Keyword Extraction for Topic Tracking](http://ieeexplore.ieee.org/document/4624203/)  
 .. [5] [TextRank: Bringing Order into Texts](https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf)
 .. [6] [Similarity Estimation Techniques from Rounding Algorithms](https://www.cs.princeton.edu/courses/archive/spr04/cos598B/bib/CharikarEstim.pdf)
+
