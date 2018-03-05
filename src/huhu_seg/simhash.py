@@ -69,7 +69,7 @@ class SimHash:
         sim = float(self.code_bit - dis) / self.code_bit 
         print('Hamming Distance is ', dis)
         print('Similarity is %f' % sim)
-        if dis > threshold :
+        if sim < threshold :
             return False
         else :
             return True
