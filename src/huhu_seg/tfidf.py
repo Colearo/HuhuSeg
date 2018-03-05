@@ -47,6 +47,9 @@ class TFIDF:
             self.keywords[word] = float(freq/self.word_num) * TFIDF.idf.dict[word]
         top_list_candidate = sorted(iter(self.keywords.items()), key = lambda d:d[1], reverse = True)
 
+        if top_n == -1 :
+            top_n = len(top_list_candidate)
+
         if combine_mode is False :
             return top_list_candidate[0 : top_n]
 
