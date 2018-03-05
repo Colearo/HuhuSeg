@@ -283,7 +283,7 @@ class AmbiguityRes:
             return chunks[0]
         self.chunks = chunks
 
-        print('No rule works')
+        print('[WARNNING] No rule works')
         return self.chunks[0]
 
 
@@ -412,7 +412,7 @@ class Segmentor:
 
         return self.tokens
 
-    def gen_key_tokens(self, pos = False) :
+    def gen_key_tokens(self, pos = False, length_limit = 1) :
         tokens = self.gen_tokens()
         key_tokens = list()
         index = -1
@@ -423,7 +423,7 @@ class Segmentor:
                     token.tag == WordTag.c or token.tag == WordTag.m or
                     token.tag.value[0] == 'u' or token.tag == WordTag.t or
                     token.word in Segmentor.stop_dict.dict or 
-                    token.length == 1) :
+                    token.length <= length_limit) :
                 continue
             if pos is False :
                 key_tokens.append(token)
