@@ -10,6 +10,15 @@ Simple Chinese segmentor based on the four ambiguity-resolving rules by **MMSEG*
 
 HuhuSeg implemented a simple but graceful words-gram generation enlightened by **HanLP** [3]_. And the dictionary(including the words tag and frequency) was included from **jieba** [2]_.  
 
+Change Log
+----------
+
+v0.3.07 :
+
+    1. Add support of Bag-of-Words model to compute the similarity
+    2. Add weight_similarity function for text clustering
+    3. Update the texts code
+
 How-to use
 ----------
 
