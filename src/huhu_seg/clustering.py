@@ -34,7 +34,7 @@ class Cluster:
             is_sim = False
 
             for centroid in self.centroids :
-                is_sim = sim_hash.similarity(self.centroid, 
+                is_sim = sim_hash.similarity(centroid, 
                         self.sim_threshold)
                 if is_sim is True :
                     self.clusters[index].append(corpus)
@@ -47,7 +47,7 @@ class Cluster:
 
         return self.clusters
 
-    def centroid_cluster_bow(self, weight_mode, weight_atrr, weight) :
+    def centroid_cluster_bow(self, weight_mode, weight_attr, weight) :
         self.clusters = list()
         self.centroids = list()
         for corpus in self.corpura :
@@ -59,7 +59,7 @@ class Cluster:
 
             for centroid in self.centroids :
                 if weight_mode is True:
-                    vector_b = BOW(corpus[weight_atrr],
+                    vector_b = BOW(corpus[weight_attr],
                             self.corpura_handle)
                     is_sim = vector.weight_similarity(vector_b, centroid, weight, self.sim_threshold)
                 else :
@@ -78,9 +78,9 @@ class Cluster:
                 self.clusters.append([corpus,])
         return self.clusters
 
-    def centroid_cluster(self, weight_mode = False, weight_atrr = None, weight = 0.0) :
+    def centroid_cluster(self, weight_mode = False, weight_attr = None, weight = 0.0) :
         if self.sim_mode == 0 :
-            return self.centroid_cluster_bow(weight_mode, weight_atrr, weight)
+            return self.centroid_cluster_bow(weight_mode, weight_attr, weight)
         elif self.sim_mode == 1 :
             return self.centroid_cluster_simhash()
     

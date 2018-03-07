@@ -7,8 +7,6 @@ import re
 import json
 from huhu_seg.clustering import Cluster
 
-date_re = re.compile('2018/03/')
-
 r = redis.Redis(host = 'localhost', port = 6379, decode_responses = True)
 
 start = time.time()
@@ -19,13 +17,13 @@ for i in r.sscan_iter('news_content') :
     if content is None or content.strip() == '':
         continue
     date = d.get('Date')
-    if date is None or date_re.search(date) is None:
+    if date is None or time.strptime(date, '%Y/%m/%d %H:%M') < time.strptime('2018/03/01 00:00', '%Y/%m/%d %H:%M') :
         continue
     data.append(d)
     print('[%s] %s' % (d['Title'], date))
 
-c = Cluster(data, 'Content', 'BOW', 0.7)
-list = c.centroid_cluster(weight_mode = True, weight_atrr = 'Title', weight = 0.5)
+c = Cluster(data, 'Content', 'BOW', 0.8)
+list = c.centroid_cluster(False)
 cluster = []
 
 for item in list :
@@ -39,12 +37,13 @@ with open('./cluster.json', 'w') as w :
 
 with open('./cluster.json', 'r') as r :
     cluster = json.load(r)
+
 corpura = []
 for c in cluster :
     corpura.append(c[0])
 
-c = Cluster(corpura, 'Content', 'BOW', 0.1)
-l = c.centroid_cluster(weight_mode = True, weight_atrr = 'Title', weight = 0.5)
+c = Cluster(corpura, 'Content', 'BOW', 0.15)
+l = c.centroid_cluster(True, 'Title', 0.5)
 
 index = 0
 for item in l :
