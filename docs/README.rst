@@ -13,11 +13,11 @@ HuhuSeg implemented a simple but graceful words-gram generation enlightened by *
 Change Log
 ----------
 
-v0.3.07 :
+**0.3.07** :
 
-    1. Add support of Bag-of-Words model to compute the similarity
-    2. Add weight_similarity function for text clustering
-    3. Update the texts code
+1. Add support of Bag-of-Words model to compute the similarity
+2. Add weight_similarity function for text clustering
+3. Update the texts code
 
 How-to use
 ----------
