@@ -8,9 +8,6 @@ from .tfidf import TFIDF
 class Corpura:
 
     def __init__(self, corpura) :
-        if not isinstance(corpura, list) :
-            print('Para corpura should be a List([str,])')
-            return
         self.dictionary = self.corpura2dict(corpura)
 
     def corpura2dict(self, corpura) :
@@ -38,10 +35,10 @@ class Corpura:
 
 class BOW:
 
-    def __init__(self, passage, corpura) :
+    def __init__(self, passage, corpura_handle) :
         self.passage = passage
         self.tfidf = TFIDF(passage)
-        self.word_vector = corpura.passage2bow(self.tfidf)
+        self.word_vector = corpura_handle.passage2bow(self.tfidf)
 
     def similarity(self, other, threshold = 0.8) :
         v_a = self.word_vector
@@ -54,5 +51,23 @@ class BOW:
             return False
         else :
             return True
+
+    def weight_similarity(self, self_b, other, weight = 0.6, 
+            threshold = 0.8) :
+        v_a = self.word_vector
+        v_b = self_b.word_vector
+        v_c = other.word_vector
+        sim_ac = v_a.dot(v_c)/(numpy.linalg.norm(v_a) * 
+                numpy.linalg.norm(v_c))
+        sim_bc = v_b.dot(v_c)/(numpy.linalg.norm(v_b) * 
+                numpy.linalg.norm(v_c))
+        sim = sim_ac * (1 - weight) + sim_bc * weight
+        print('Similarity is %f' % sim)
+
+        if sim < threshold :
+            return False
+        else :
+            return True
+
 
 
