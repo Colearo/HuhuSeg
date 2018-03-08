@@ -12,6 +12,7 @@ class SimHash:
         self.tfidf = TFIDF(self.passage)
         self.tokens = self.tfidf.extract_kw(top_n = 200, combine_mode = False)
         self.simhash = self.sim_hash(self.tokens)
+        self.pickle_data = self.simhash
 
     def __str__(self) :
         return self.simhash

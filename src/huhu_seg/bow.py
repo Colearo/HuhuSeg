@@ -2,13 +2,34 @@
 # -*- coding: utf-8 -*-
 
 import numpy
+import json
 from .segmentor import Segmentor
 from .tfidf import TFIDF
 
 class Corpura:
 
-    def __init__(self, corpura) :
-        self.dictionary = self.corpura2dict(corpura)
+    def __init__(self, corpura = None) :
+        if corpura is not None :
+            self.dictionary = self.corpura2dict(corpura)
+        else :
+            self.dictionary = dict()
+    
+    def load_dict(self, path) :
+        with open(path, 'r') as r :
+            self.dictionary = json.load(r)
+
+    def save_dict(self, path) :
+        with open(path, 'w') as f :
+            json.dump(self.dictionary, f)
+
+    def merge_dict(self, other) :
+        if len(self.dictionary) == 0 :
+            self.dictionary = other.dictionary
+        index = len(self.dictionary)
+        for key in other.dictionary :
+            if key not in self.dictionary :
+                self.dictionary[key] = index
+                index += 1
 
     def corpura2dict(self, corpura) :
         index_dict = dict()
@@ -23,6 +44,13 @@ class Corpura:
         print('Find %d unique words' % len(index_dict))
         return index_dict
 
+    def corpura2average_bow(self, corpura) :
+        length = sum(1 for corpus in corpura)
+        if length == 0 :
+            return None
+        s = sum(BOW(corpus, self).word_vector for corpus in corpura)
+        return s / length
+
     def passage2bow(self, passage_tfidf) :
         words_list = passage_tfidf.extract_kw(top_n = -1,
                         combine_mode = False)
@@ -35,10 +63,13 @@ class Corpura:
 
 class BOW:
 
-    def __init__(self, passage, corpura_handle) :
-        self.passage = passage
-        self.tfidf = TFIDF(passage)
-        self.word_vector = corpura_handle.passage2bow(self.tfidf)
+    def __init__(self, passage = None, corpura_handle = None, vec = None) :
+        if passage is not None and corpura_handle is not None :
+            self.passage = passage
+            self.tfidf = TFIDF(passage)
+            self.word_vector = corpura_handle.passage2bow(self.tfidf)
+        else :
+            self.word_vector = vec
 
     def similarity(self, other, threshold = 0.8) :
         v_a = self.word_vector
