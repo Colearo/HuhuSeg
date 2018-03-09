@@ -79,9 +79,9 @@ class BOW:
         print('Similarity is %f' % sim)
 
         if sim < threshold :
-            return False
+            return False, sim
         else :
-            return True
+            return True, sim
 
     def weight_similarity(self, self_b, other, weight = 0.6, 
             threshold = 0.8) :
@@ -96,9 +96,8 @@ class BOW:
         print('Similarity is %f' % sim)
 
         if sim < threshold :
-            return False
+            return False, sim
         else :
-            return True
-
+            return True, sim
 
 
