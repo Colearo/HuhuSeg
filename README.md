@@ -6,6 +6,11 @@ Simple Chinese segmentor based on the four ambiguity-resolving rules by **MMSEG*
 同时HuhuSeg实现了一个简单但是非常高效的词图生成方式，由**HanLP**[3]的启发而来。同时核心词典直接使用了**jieba**[2]的词频词典。    
 HuhuSeg implemented a simple but graceful words-gram generation enlightened by **HanLP**[3]. And the dictionary(including the words tag and frequency) was included from **jieba**[2].  
 
+## Changelog
+### v0.3.26  
+1. Add support of named entity recognition based on 2-gram hmm model
+2. Fix bugs.
+
 ## How-to use 
 ### Installation  
 
@@ -34,6 +39,32 @@ And the output is :
 [frequency 10314 | v | length 1] 办
 [frequency 404 | n | length 2] 公益
 ```
+
+### Named Entity Recognition
+
+通过参考《基于角色标注的中国人名自动识别研究》[7]这篇论文和HanLP的训练数据[8]，输入粗分词结果，基于一阶HMM模型和Viterbi算法得到词语序列标签，然后使用Aho Corasick有限自动状态机进行模式匹配，获得其中匹配的人名标签，进行中文人名识别.      
+As referrence to the paper **Automatic Recognition of Chinese personal Name Based on Role Tagging**[7] and HanLP's 2-gram hmm model[8], we build the hidden markov chain with Viterbi Algorithm to compute the max global probabilities. Through the tagged words, we can recognize the person's name by matching the pattern rules based on the AC automata. It receive the first level's tokens, and output token sequences with higher precision. 
+
+```python
+from huhu_seg.segmentor import Segmentor
+
+s = Segmentor('李智伟高高兴兴和王晓薇出去玩。', hmm_config = True)
+tokens = s.gen_tokens()
+for item in tokens:
+    print(str(item))
+```
+
+And the output is :
+```
+[frequency 3 | nr | length 3] 李智伟
+[frequency 119 | ns | length 4] 高高兴兴
+[frequency 555815 | c | length 1] 和
+[frequency 3 | nr | length 3] 王晓薇
+[frequency 3 | n | length 3] 出去玩
+[frequency 0 | wj | length 1] 。
+
+```
+
 
 ### Keywords Extraction
 #### TF-IDF Keywords Extraction
@@ -280,7 +311,7 @@ Sim is  0.8135632082626852
 The TO-DO below shows what I have done and the next-steps :  
 - [x] Implementation of MMSEG segmentor
 - [ ] Optimization for dictionary indexing
-- [ ] Named Entity Recognition
+- [x] Named Entity Recognition
 - [x] Keywords extraction
 - [x] Similarity computing of texts
 - [ ] Extraction of topic-phrase for news 
@@ -292,4 +323,6 @@ The TO-DO below shows what I have done and the next-steps :
 [4] [News Keyword Extraction for Topic Tracking](http://ieeexplore.ieee.org/document/4624203/)  
 [5] [TextRank: Bringing Order into Texts](https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf)  
 [6] [Similarity Estimation Techniques from Rounding Algorithms](https://www.cs.princeton.edu/courses/archive/spr04/cos598B/bib/CharikarEstim.pdf)
+[7] [基于角色标注的中国人名自动识别研究](http://www.nlp.org.cn/Admin/kindeditor/attached/file/20130508/20130508094537_92322.pdf)
+[8] [实战HMM-Viterbi角色标注中国人名识别](http://www.hankcs.com/nlp/chinese-name-recognition-in-actual-hmm-viterbi-role-labeling.html)
 
