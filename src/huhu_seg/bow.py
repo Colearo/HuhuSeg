@@ -4,6 +4,7 @@
 import numpy
 import json
 from .segmentor import Segmentor
+from .textrank import TextRank
 from .tfidf import TFIDF
 
 class Corpura:
@@ -35,11 +36,11 @@ class Corpura:
         index_dict = dict()
         index = 0
         for corpus in corpura :
-            segmentor =  Segmentor(corpus)
-            tokens = segmentor.gen_key_tokens()
-            for token in tokens :
-                if token.word not in index_dict :
-                    index_dict[token.word] = index
+            textrank = TextRank(corpus)
+            tokens = textrank.extract_kw(top_n = 100, combine_mode = False)
+            for token, weight in tokens :
+                if token not in index_dict :
+                    index_dict[token] = index
                     index += 1
         print('Find %d unique words' % len(index_dict))
         return index_dict
@@ -51,13 +52,18 @@ class Corpura:
         s = sum(BOW(corpus, self).word_vector for corpus in corpura)
         return s / length
 
-    def passage2bow(self, passage_tfidf) :
-        words_list = passage_tfidf.extract_kw(top_n = -1,
+    def corpura2total_bow(self, corpura) :
+        return sum(BOW(corpus, self).word_vector for corpus in corpura)
+
+    def passage2bow(self, passage) :
+        textrank = TextRank(passage)
+        words_list = textrank.extract_kw(top_n = -1,
                         combine_mode = False)
         vector = numpy.zeros(len(self.dictionary))
         for word, weight in words_list :
             if word in self.dictionary :
                 vector[self.dictionary[word]] = weight
+        vector = vector / numpy.linalg.norm(vector)
         return vector
 
 
@@ -66,8 +72,7 @@ class BOW:
     def __init__(self, passage = None, corpura_handle = None, vec = None) :
         if passage is not None and corpura_handle is not None :
             self.passage = passage
-            self.tfidf = TFIDF(passage)
-            self.word_vector = corpura_handle.passage2bow(self.tfidf)
+            self.word_vector = corpura_handle.passage2bow(self.passage)
         else :
             self.word_vector = vec
 

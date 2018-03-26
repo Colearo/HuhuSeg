@@ -58,13 +58,33 @@ class TFIDF:
         top_list = dict(top_list_candidate)
         word_couples = self.segmentor.gen_word_couples()
         for word_a, word_b in word_couples :
-            if (word_a + word_b not in top_list.keys() and 
-                    word_a in top_list.keys() and word_b in top_list.keys()) :
+            if ((word_a + word_b not in top_list) and 
+                    (word_a in top_list) and (word_b in top_list)) :
                 top_list[word_a + word_b] = top_list[word_a] + top_list[word_b]
-                top_list.pop(word_a)
-                top_list.pop(word_b)
+                try :
+                    del top_list[word_a]
+                    del top_list[word_b]
+                except :
+                    pass
         top_list = sorted(iter(top_list.items()), key = lambda d:d[1], reverse = True)
 
         return top_list[0 : top_n]
 
+    def advanced_kw(self, top_n) :
+        pass
+
+    def simple_kw(self, kw_dict) :
+        freqs = dict()
+        keywords = dict()
+        for word in kw_dict :
+            freqs[word] = 0
+
+        tokens = self.segmentor.gen_key_tokens()
+        for token in tokens :
+            if token.word in freqs :
+                freqs[token.word] += 1
+        for word, weight in iter(kw_dict.items()) :
+            keywords[word] = weight * freqs[word]
+
+        return keywords
 

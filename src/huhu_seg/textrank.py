@@ -75,8 +75,9 @@ class TextRank :
             if (diff < self.thr_matrix).any() :
                 break
             times += 1
+        self.vec_matrix = self.vec_matrix / numpy.linalg.norm(self.vec_matrix)
 
-    def extract_kw(self, top_n = 5) :
+    def extract_kw(self, top_n = 5, combine_mode = True) :
         self.power_iteration()
         self.top_n = dict()
         index = 0
@@ -84,7 +85,15 @@ class TextRank :
             self.top_n[key] = self.vec_matrix[index, 0]
             index += 1
         top_list_candidate = sorted(iter(self.top_n.items()), key = lambda d:d[1], reverse = True)
-        top_list_candidate = top_list_candidate[0 : top_n * 2]
+
+        if top_n == -1 or top_n > len(top_list_candidate) :
+            top_n = len(top_list_candidate)
+
+        if combine_mode is False :
+            return top_list_candidate[0 : top_n]
+
+        if top_n * 2 < len(top_list_candidate) :
+            top_list_candidate = top_list_candidate[0 : top_n * 2]
         top_list = dict(top_list_candidate)
         word_couples = self.segmentor.gen_word_couples()
         for word_a, word_b in word_couples :

@@ -13,22 +13,13 @@ class Cluster:
         self.clusters = list()
         self.corpura_handle = Corpura()
 
-    def load_corpura(self, corpura, corpura_attr, sim_mode , sim_threshold) :
+    def load_corpura(self, corpura, corpura_attr) :
         if not isinstance(corpura, list):
-            print('Para corpura should be a List([str,])')
+            print('[ERROR]Para corpura should be a List([str,])')
             return
         self.corpura = corpura
         self.corpura_attr = corpura_attr
-        if sim_mode == 'BOW' :
-            self.corpura_handle = Corpura((corpus[corpura_attr] for corpus in corpura))
-            self.sim_mode = 0
-        elif sim_mode == 'SIMHASH' :
-            self.sim_mode = 1
-        else :
-            print('Para sim_mode cannot be recognized,'
-                    'please refer to the help')
-            return
-        self.sim_threshold = sim_threshold
+        self.corpura_handle = Corpura((corpus[corpura_attr] for corpus in corpura))
 
     def load_model(self, model_path) :
         with open(model_path, 'r') as r :
@@ -74,51 +65,73 @@ class Cluster:
         
         return self.clusters
 
-    def centroid_cluster_bow(self, min_size, weight_mode, weight_attr, weight) :
+    def centroid_cluster_bow(self, min_size) :
         clusters = list()
         centroids = list()
+        vectors = list()
+
+        THR_E = 0.75
+        THR_N = 0.35
+
         for corpus in self.corpura :
             vector = BOW(corpus[self.corpura_attr], 
                     self.corpura_handle)
-            index = 0
-            is_sim = False
+            sums = sum(vector.word_vector)
+            vectors.append((corpus, vector, sums))
+        vectors.sort(key = lambda d:d[2], reverse = True)
 
-            for centroid in centroids :
-                if weight_mode is True:
-                    vector_b = BOW(corpus[weight_attr],
-                            self.corpura_handle)
-                    is_sim, sim = vector.weight_similarity(vector_b, centroid, weight, self.sim_threshold)
-                else :
-                    is_sim, sim = vector.similarity(centroid, 
-                            self.sim_threshold)
+        for corpus, vector, sums in vectors :
+            max_sim = 0.0
+            max_sim_centroid = None
+            max_sim_i = 0
+            max_sim_j = 0
 
-                if is_sim is True :
-                    clusters[index].append(corpus)
-                    centroids[index].word_vector = (centroids[index].word_vector * (len(clusters[index]) - 1) + vector.word_vector) / len(clusters[index])
-                    break
+            for centroid, i, j in centroids :
+                is_sim, sim = vector.similarity(centroid)
+                if sim > max_sim :
+                    max_sim = sim
+                    max_sim_centroid = centroid
+                    max_sim_i = i
+                    max_sim_j = j
 
-                index += 1
-                
-            if is_sim is False or len(centroids) == 0 :
-                centroids.append(vector)
-                clusters.append([corpus,])
+            if len(centroids) == 0 :
+                centroids.append((vector, 0, 0))
+                clusters.append([[corpus,],])
+                continue
 
-        self.clusters = list()
+            cluster = clusters[max_sim_i][max_sim_j]
+            if max_sim > THR_E:
+                cluster.append(corpus)
+                max_sim_centroid.word_vector = (max_sim_centroid.word_vector * (len(cluster) - 1) + vector.word_vector) / len(cluster)
+            elif max_sim <= THR_E and max_sim > THR_N :
+                centroids.append((vector, max_sim_i, len(clusters[max_sim_i])))
+                clusters[max_sim_i].append([corpus,])
+            else :
+                centroids.append((vector, len(clusters), 0))
+                clusters.append([[corpus,],])
+
         if min_size > 1 :
             for cluster in clusters :
-                if len(cluster) >= min_size :
-                    self.clusters.append(cluster)
-        else :
-            self.clusters = clusters
+                temp = list()
+                for c in cluster :
+                    if len(c) >= min_size :
+                        temp.append(c)
+                if len(temp) > 0 :
+                    self.clusters.append(temp)
 
         return self.clusters
-
-    def centroid_cluster(self, min_size, weight_mode = False, weight_attr = None, weight = 0.0) :
-        if self.sim_mode == 0 :
-            return self.centroid_cluster_bow(min_size, weight_mode, weight_attr, weight)
-        elif self.sim_mode == 1 :
-            return self.centroid_cluster_simhash(min_size)
     
+    def print_cluster(self) :
+        i = 0
+        for cluster in self.clusters :
+            j = 0
+            print('Topic %d' % i)
+            for c in cluster :
+                print('Subtopic %d' % j)
+                print([item['Title'] for item in c])
+                j += 1
+            i += 1
+
     def hierachical_cluster(self, h_threshold, h_attr, weight_attr, weight , date_attr = 'Date') :
         clusters = list()
         centroids = list()
