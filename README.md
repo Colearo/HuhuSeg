@@ -322,7 +322,8 @@ The TO-DO below shows what I have done and the next-steps :
 [3] [词图的生成](http://www.hankcs.com/nlp/segment/the-word-graph-is-generated.html)   
 [4] [News Keyword Extraction for Topic Tracking](http://ieeexplore.ieee.org/document/4624203/)  
 [5] [TextRank: Bringing Order into Texts](https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf)  
-[6] [Similarity Estimation Techniques from Rounding Algorithms](https://www.cs.princeton.edu/courses/archive/spr04/cos598B/bib/CharikarEstim.pdf)
-[7] [基于角色标注的中国人名自动识别研究](http://www.nlp.org.cn/Admin/kindeditor/attached/file/20130508/20130508094537_92322.pdf)
-[8] [实战HMM-Viterbi角色标注中国人名识别](http://www.hankcs.com/nlp/chinese-name-recognition-in-actual-hmm-viterbi-role-labeling.html)
+[6] [Similarity Estimation Techniques from Rounding Algorithms](https://www.cs.princeton.edu/courses/archive/spr04/cos598B/bib/CharikarEstim.pdf)  
+[7] [基于角色标注的中国人名自动识别研究](http://www.nlp.org.cn/Admin/kindeditor/attached/file/20130508/20130508094537_92322.pdf)  
+[8] [实战HMM-Viterbi角色标注中国人名识别](http://www.hankcs.com/nlp/chinese-name-recognition-in-actual-hmm-viterbi-role-labeling.html)  
+
 
