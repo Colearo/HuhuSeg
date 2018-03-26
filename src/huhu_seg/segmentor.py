@@ -4,6 +4,9 @@
 import os
 import math
 from enum import Enum
+import huhu_seg.hmm as hmm
+from huhu_seg.trie import TrieAC
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 class WordTag(Enum):
     ag = 'ag'
@@ -130,7 +133,58 @@ class WordDict:
     def get(self, word) :
         item = self.dict.get(word)
         return item
-        
+
+class PersonTagDict:
+
+    def __init__(self) :
+        self.trans_dict = os.path.join(os.path.dirname(__file__), 
+                'lexicon', 'nr.tr.segd')
+        self.tag_dict = os.path.join(os.path.dirname(__file__), 
+                'lexicon', 'nr.segd')
+        self.init_probs = dict()
+        self.init_counts = dict()
+        self.trans_probs = dict()
+        self.emit_probs = dict()
+        self.words = list()
+        self.load()
+
+    def load(self) :
+        with open(self.trans_dict) as trans_dict :
+            states = trans_dict.readline().strip().split(',')
+            del states[0]
+            for state in states :
+                self.trans_probs[state] = dict()
+                counts = [int(count) for count in 
+                        trans_dict.readline().strip().split(',') 
+                        if count.isdigit()]
+                self.init_counts[state] = sum(counts)
+                for i in range(len(counts)) :
+                    self.trans_probs[state][states[i]] = float(counts[i]) / float(sum(counts))
+            self.init_probs = [(key, (self.init_counts[key] / 
+                sum(self.init_counts.values())))
+                for key in self.init_counts]
+            self.init_probs = dict(self.init_probs)
+            self.states = states
+
+        with open(self.tag_dict) as tag_dict :
+            for line in tag_dict.readlines() :
+                tags = line.split(' ')
+                word = tags[0]
+                self.words.append(word)
+                for i in range(1, len(tags), 2) :
+                    try :
+                        self.emit_probs[tags[i]][word] = (float(
+                        tags[i + 1]) / float(self.init_counts[tags[i]]))
+                    except :
+                        self.emit_probs[tags[i]] = dict()
+                        self.emit_probs[tags[i]][word] = (float(
+                        tags[i + 1]) / float(self.init_counts[tags[i]]))
+
+    def check_word_emit(self, word) :
+        if word not in self.words :
+            self.words.append(word)
+            self.emit_probs['A'][word] = 0.1
+
 class StopDict:
 
     def __init__(self) :
@@ -197,9 +251,19 @@ class Chunk:
 
 class Alphabeta:
 
-    def __init__(self, string) :
+    def __init__(self, string, tag = None) :
         self.string = string
+        if tag is None :
+            self.tag = self.gen_tag()
+        else :
+            self.tag = tag
 
+    def gen_tag(self) :
+        if self.string.isdigit() :
+            return WordTag.m
+        else :
+            return WordTag.n
+            
     def __len__(self) :
         return 1
 
@@ -286,33 +350,86 @@ class AmbiguityRes:
         print('[WARNNING] No rule works')
         return self.chunks[0]
 
+def gen_person_states_machine() :
+        ac_states = TrieAC()
+        ac_states.add('BBCD')
+        ac_states.add('BBE')
+        ac_states.add('BBZ')
+        ac_states.add('BCD')
+        ac_states.add('BE')
+        ac_states.add('BEE')
+        ac_states.add('BG')
+        ac_states.add('BXD')
+        ac_states.add('B')
+        ac_states.add('CD')
+        ac_states.add('EE')
+        ac_states.add('FB')
+        ac_states.add('XD')
+        ac_states.add('Y')
+        ac_states.gen_failure()
+        return ac_states
+
+def tokenize(sentence, hmm_config) :
+    s = Segmentor(sentence, hmm_config)
+    t = s.gen_tokens()
+    return t
 
 class Segmentor:
 
     word_dict = WordDict()
     stop_dict = StopDict()
+    hmm_person_dict = PersonTagDict()
+    ac_states = gen_person_states_machine()
+    executor = ThreadPoolExecutor(max_workers = 100)
 
-    def __init__(self, text) :
+    def __init__(self, text, hmm_config = False) :
         self.gram = list()
         self.tokens = list()
         self.text = text
-        self.atomic_gram()
+        self.hmm_config = hmm_config
     
     def atomic_gram(self) :
         alpha_flag = False
         for i in range(len(self.text)) :
             if self.text[i].strip() == '' :
                 continue
-            if self.is_alphabeta(self.text[i]) or self.is_digit(self.text[i]) :
+            if self.is_alphabeta(self.text[i]) or self.is_digit(self.text[i]) or self.text[i] == '-' or (self.text[i] == '.' and self.is_digit(self.text[i + 1])) :
                 if alpha_flag is False :
                     tmp = self.text[i]
                     alpha_flag = True
                 else :
                     tmp += self.text[i]
+                    if i == len(self.text) - 1 :
+                        item = Alphabeta(tmp)
+                        self.gram.append(item)
                 continue
             elif alpha_flag is True :
                 alpha_flag = False
+                combine_flag = False
                 item = Alphabeta(tmp)
+                _tmp = tmp
+
+                for j in range(Segmentor.word_dict.max_len) :
+                    if i + j >= len(self.text) :
+                        break
+                    _tmp += self.text[i + j]
+                    if _tmp in Segmentor.word_dict.dict :
+                        item = Alphabeta(_tmp)
+                        combine_flag = True
+                        break
+
+                if (combine_flag is False and
+                self.text[i] in Segmentor.word_dict.dict and 
+                (Segmentor.word_dict.dict[self.text[i]].tag == WordTag.q or 
+                Segmentor.word_dict.dict[self.text[i]].tag == WordTag.m)) : 
+                    tmp += self.text[i]
+                    item = Alphabeta(tmp, WordTag.mq)
+                    combine_flag = True
+
+                if combine_flag is True :
+                    self.gram.append(item)
+                    continue
+
                 self.gram.append(item)
 
             tmp = self.text[i]
@@ -381,9 +498,18 @@ class Segmentor:
             print(' next@', chunk.index_next, index_next)
 
     def gen_tokens(self) :
+        self.atomic_gram()
         index = 0
         while index < len(self.gram) :
-            if self.is_alsymbol(index) : 
+            if self.is_alphabetainst(index) :
+                token = Word(1, self.gram[index].tag, 
+                        len(self.gram[index].string), 
+                        self.gram[index].string)
+                self.tokens.append(token)
+                index += 1
+                continue
+
+            if self.is_symbol(index) : 
                 token = Segmentor.word_dict.get(self.gram[index])
                 if token is None :
                     token = Word(1, WordTag.x, 1, self.gram[index])
@@ -410,8 +536,65 @@ class Segmentor:
                 self.tokens.append(item)
                 index = chunk.index_next
 
+        if len(self.tokens) >= 3 and self.hmm_config is True:
+            self.tokens = self.person_recognize(self.tokens)
+
         return self.tokens
 
+    def gen_tokens_parallel(self) :
+        texts = self.text
+        sentences = list()
+        start = 0
+        end = 0
+        for text in texts:
+            if text == '。' :
+                sentences.append(texts[start : end + 1])
+                start = end + 1
+                end = start
+            elif end == len(texts) - 1 :
+                sentences.append(texts[start : end + 1])
+            else :
+                end += 1
+        if len(sentences) == 0 :
+            sentences = [texts,]
+        for t in Segmentor.executor.map(tokenize, (s for s in sentences), (self.hmm_config for s in sentences)) :
+            self.tokens.extend(t)
+        return self.tokens
+
+    def person_recognize(self, tokens) :
+        words = [str(token.word) for token in tokens]
+        for word in words :
+            Segmentor.hmm_person_dict.check_word_emit(word)
+
+        states2index, index2states = hmm.gen_tag2index(
+                Segmentor.hmm_person_dict.states)
+        observs2index, index2observs = hmm.gen_tag2index(
+                Segmentor.hmm_person_dict.words)
+        trans_matrix = hmm.map2matrix(
+                Segmentor.hmm_person_dict.trans_probs
+                , states2index, states2index)
+        emit_matrix = hmm.map2matrix(Segmentor.hmm_person_dict.emit_probs,
+                states2index, observs2index)
+        init_vec = hmm.map2vec(Segmentor.hmm_person_dict.init_probs, 
+                states2index)
+        obs_seqs = hmm.seqs2index(words, observs2index)
+
+        hmm_model = hmm.HMM(trans_matrix, emit_matrix, init_vec)
+        prob, path = hmm_model.state_path(obs_seqs)
+        path = list(path)
+        tag_seqs = ''.join([index2states[path[i]] for i in range(len(path))])
+        names = Segmentor.ac_states.search(tag_seqs)
+        del_tokens = set()
+        for name, start, end in names :
+            word = ''.join(words[start : end + 1])
+            tokens[start] = Word(3, WordTag.nr, len(word), word)
+            del_tokens.extend(tokens[start + 1 : end + 1])
+        temp_tokens = list()
+        for token in tokens :
+            if token not in del_tokens :
+                temp_tokens.append(token)
+        return temp_tokens
+    
     def gen_key_tokens(self, pos = False, length_limit = 1) :
         tokens = self.gen_tokens()
         key_tokens = list()
@@ -443,11 +626,22 @@ class Segmentor:
             index += 1
         return word_couples
 
-    def is_alsymbol(self, index) :
-        if (isinstance(self.gram[index], Alphabeta) or
-        (self.gram[index] in Segmentor.word_dict.dict and 
+    def is_alphabetainst(self, index) :
+        if isinstance(self.gram[index], Alphabeta) :
+            return True
+        else :
+            return False
+
+    def is_symbol(self, index) :
+        if ((self.gram[index] in Segmentor.word_dict.dict and 
         Segmentor.word_dict.dict[self.gram[index]].tag.value[0] == 'w')
         or self.gram[index] == '/') :
+            return True
+        else :
+            return False
+
+    def is_alsymbol(self, index) :
+        if self.is_alphabetainst(index) or self.is_symbol(index) :
             return True
         else :
             return False
