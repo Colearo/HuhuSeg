@@ -581,10 +581,9 @@ class Segmentor:
 
         hmm_model = hmm.HMM(trans_matrix, emit_matrix, init_vec)
         prob, path = hmm_model.state_path(obs_seqs)
-        path = list(path)
         tag_seqs = ''.join([index2states[path[i]] for i in range(len(path))])
         names = Segmentor.ac_states.search(tag_seqs)
-        del_tokens = set()
+        del_tokens = list()
         for name, start, end in names :
             word = ''.join(words[start : end + 1])
             tokens[start] = Word(3, WordTag.nr, len(word), word)
