@@ -13,6 +13,12 @@ HuhuSeg implemented a simple but graceful words-gram generation enlightened by *
 Change Log
 ----------
 
+**0.3.26** :
+
+1. Add support of named entity recognition based on 2-gram hmm model
+2. Add support of text centroid clustering
+3. Update the texts code
+
 **0.3.07** :
 
 1. Add support of Bag-of-Words model to compute the similarity
@@ -40,7 +46,7 @@ We can just try to segment the Chinese texts like this :  
 
     from huhu_seg.segmentor import Segmentor
 
-    s = Segmentor('为人民办公益')
+    s = Segmentor('李智伟高高兴兴和王晓薇出去玩。', hmm_config = True)
     tokens = s.gen_tokens()
     for item in tokens:
         print(str(item))
@@ -49,10 +55,13 @@ And the output is :
 
 ::
 
-    [frequency 295952 | p | length 1] 为
-    [frequency 43719 | n | length 2] 人民
-    [frequency 10314 | v | length 1] 办
-    [frequency 404 | n | length 2] 公益
+    [frequency 3 | nr | length 3] 李智伟
+    [frequency 119 | ns | length 4] 高高兴兴
+    [frequency 555815 | c | length 1] 和
+    [frequency 3 | nr | length 3] 王晓薇
+    [frequency 3 | n | length 3] 出去玩
+    [frequency 0 | wj | length 1] 。
+
 
 Keywords Extraction
 ~~~~~~~~~~~~~~~~~~~
