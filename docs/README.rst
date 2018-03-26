@@ -228,7 +228,7 @@ The TO-DO below shows what I have done and the next-steps :
 
 - Optimization for dictionary indexing [ ]
 
-- Named Entity Recognition [ ] 
+- Named Entity Recognition [x] 
 
 - Keywords extraction [x] 
 
