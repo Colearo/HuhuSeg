@@ -91,8 +91,8 @@ class TrieAC :
                 next_state = self.goto[cur_state].get(char)
                 if next_state is not None :
                     cur_state = next_state
-                else :
-                    cur_state - self.failure[cur_state]
+                # else :
+                    # cur_state = self.failure[cur_state]
             index += 1
         return output_list
 
