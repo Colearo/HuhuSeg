@@ -23,5 +23,5 @@ print(t.output)
 print(t.tree)
 print(t.goto)
 print(t.failure)
-print(t.search('BCDFCDBE'))
+print(t.search('BCDHFCDBE'))
 

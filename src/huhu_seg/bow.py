@@ -49,11 +49,12 @@ class Corpura:
         length = sum(1 for corpus in corpura)
         if length == 0 :
             return None
-        s = sum(BOW(corpus, self).word_vector for corpus in corpura)
-        return s / length
+        s = sum(BOW(corpus, self).word_vector for corpus in corpura) / length
+        s = BOW(vec = s)
+        return s
 
     def corpura2total_bow(self, corpura) :
-        return sum(BOW(corpus, self).word_vector for corpus in corpura)
+        return BOW(vec = sum(BOW(corpus, self).word_vector for corpus in corpura))
 
     def passage2bow(self, passage) :
         textrank = TextRank(passage)
@@ -71,8 +72,7 @@ class BOW:
 
     def __init__(self, passage = None, corpura_handle = None, vec = None) :
         if passage is not None and corpura_handle is not None :
-            self.passage = passage
-            self.word_vector = corpura_handle.passage2bow(self.passage)
+            self.word_vector = corpura_handle.passage2bow(passage)
         else :
             self.word_vector = vec
 

@@ -76,7 +76,7 @@ class Cluster:
         for corpus in self.corpura :
             vector = BOW(corpus[self.corpura_attr], 
                     self.corpura_handle)
-            sums = sum(vector.word_vector)
+            sums = vector.word_vector.sum()
             vectors.append((corpus, vector, sums))
         vectors.sort(key = lambda d:d[2], reverse = True)
 
@@ -118,6 +118,8 @@ class Cluster:
                         temp.append(c)
                 if len(temp) > 0 :
                     self.clusters.append(temp)
+        else :
+            self.clusters = clusters
 
         return self.clusters
     
@@ -192,5 +194,46 @@ class Cluster:
     def merge_models(self, others) :
         for other in others :
             self.merge_model(other)
+
+class Timeline :
+
+    def __init__(self, clusters_inst) :
+        if not isinstance(clusters_inst, list) or not isinstance(clusters_inst[0], Cluster) :
+            print('[ERROR]Para clusters_inst should be a List([Cluster, ])')
+            return
+        self.clusters_inst = clusters_inst
+        self.topic_centroids = list()
+        self.topics = list()
+
+    def add_topic(self, corpura, cur_centroid, attr) :
+        THR = 0.55
+        topic = corpura
+        max_sim = 0.0 
+        max_sim_index = 0
+        max_sim_topic_centroid = None
+        for topic_centroid, index in self.topic_centroids :
+            is_sim, sim = cur_centroid.similarity(topic_centroid)
+            if sim > max_sim :
+                max_sim = sim
+                max_sim_index = index
+                max_sim_topic_centroid = topic_centroid
+        if len(self.topic_centroids) == 0 or max_sim < THR :
+            topic_centroid = (cur_centroid, len(self.topic_centroids))
+            self.topic_centroids.append(topic_centroid)
+            self.topics.append([(topic, attr),])
+            return
+        if max_sim >= THR :
+            self.topics[max_sim_index].append((topic, attr))
+            max_sim_topic_centroid.word_vector = (max_sim_topic_centroid.word_vector * (len(self.topics[max_sim_index]) - 1) + cur_centroid.word_vector) / len(self.topics[max_sim_index])
+
+    def timeline_topics(self) :
+        corpura_handle = Corpura()
+        for cluster_inst in self.clusters_inst :
+            corpura_handle.merge_dict(cluster_inst.corpura_handle)
+
+        for cluster_inst in self.clusters_inst :
+            for cluster, attr in cluster_inst.clusters :
+                cur_centroid = corpura_handle.corpura2total_bow([c[cluster_inst.corpura_attr] for c in sum(cluster, [])])
+                self.add_topic(cluster, cur_centroid, attr)
 
 

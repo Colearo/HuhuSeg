@@ -6,10 +6,10 @@ from .segmentor import Segmentor
 
 class TextRank :
 
-    def __init__(self, passage, window_width = 3, weight = 0.8) :
+    def __init__(self, passage, window_width = 3, weight = 0.8, hmm_config = False) :
         self.passage = passage
         self.window_width = window_width
-        self.segmentor = Segmentor(passage)
+        self.segmentor = Segmentor(passage, hmm_config)
         self.co_groups = dict()
         self.weight = weight
 
@@ -41,9 +41,10 @@ class TextRank :
         for key in iter(self.co_groups.keys()) :
             index_dict[key] = index
             index += 1
+        self.index_dict = index_dict
         init_rank = float(1.0/len(self.co_groups))
         for word, vectors in iter(self.co_groups.items()) :
-            out_vec = float(len(vectors))
+            out_vec = len(vectors)
             for v in vectors :
                 self.trans_matrix[index_dict[v.word], 
                         index_dict[word]] = float(1.0/out_vec) * self.weight
@@ -80,10 +81,8 @@ class TextRank :
     def extract_kw(self, top_n = 5, combine_mode = True) :
         self.power_iteration()
         self.top_n = dict()
-        index = 0
-        for key in iter(self.co_groups.keys()) :
-            self.top_n[key] = self.vec_matrix[index, 0]
-            index += 1
+        for key in iter(self.co_groups) :
+            self.top_n[key] = self.vec_matrix[self.index_dict[key], 0]
         top_list_candidate = sorted(iter(self.top_n.items()), key = lambda d:d[1], reverse = True)
 
         if top_n == -1 or top_n > len(top_list_candidate) :
@@ -97,12 +96,12 @@ class TextRank :
         top_list = dict(top_list_candidate)
         word_couples = self.segmentor.gen_word_couples()
         for word_a, word_b in word_couples :
-            if (word_a + word_b not in top_list.keys() and 
-                    word_a in top_list.keys() and word_b in top_list.keys()) :
+            if (word_a + word_b not in top_list and 
+                    word_a in top_list and word_b in top_list) :
                 top_list[word_a + word_b] = top_list[word_a] + top_list[word_b]
                 try :
-                    top_list.pop(word_a)
-                    top_list.pop(word_b)
+                    del top_list[word_a]
+                    del top_list[word_b]
                 except :
                     pass
 

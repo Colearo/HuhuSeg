@@ -27,9 +27,9 @@ class TFIDF:
 
     idf = IdfDict()
 
-    def __init__(self, passage) :
+    def __init__(self, passage, hmm_config = False) :
         self.passage = passage
-        self.segmentor = Segmentor(passage)
+        self.segmentor = Segmentor(passage, hmm_config)
         self.keywords = dict()
         self.freqs = dict()
         self.word_num = 0
@@ -69,22 +69,4 @@ class TFIDF:
         top_list = sorted(iter(top_list.items()), key = lambda d:d[1], reverse = True)
 
         return top_list[0 : top_n]
-
-    def advanced_kw(self, top_n) :
-        pass
-
-    def simple_kw(self, kw_dict) :
-        freqs = dict()
-        keywords = dict()
-        for word in kw_dict :
-            freqs[word] = 0
-
-        tokens = self.segmentor.gen_key_tokens()
-        for token in tokens :
-            if token.word in freqs :
-                freqs[token.word] += 1
-        for word, weight in iter(kw_dict.items()) :
-            keywords[word] = weight * freqs[word]
-
-        return keywords
 

@@ -361,9 +361,11 @@ def gen_person_states_machine() :
         ac_states.add('BG')
         ac_states.add('BXD')
         ac_states.add('B')
+        ac_states.add('BV')
         ac_states.add('CD')
         ac_states.add('EE')
         ac_states.add('FB')
+        ac_states.add('FE')
         ac_states.add('XD')
         ac_states.add('Y')
         ac_states.gen_failure()
@@ -585,6 +587,12 @@ class Segmentor:
         names = Segmentor.ac_states.search(tag_seqs)
         del_tokens = list()
         for name, start, end in names :
+            if name == 'BV' :
+                word_a = words[start] + words[end][0]
+                word_b = words[end][-1]
+                tokens[start] = Word(3, WordTag.nr, len(word_a), word_a)
+                tokens[start + 1] = Segmentor.word_dict.get(word_b)
+                continue
             word = ''.join(words[start : end + 1])
             tokens[start] = Word(3, WordTag.nr, len(word), word)
             del_tokens.extend(tokens[start + 1 : end + 1])

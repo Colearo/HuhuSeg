@@ -12,8 +12,8 @@ from huhu_seg.segmentor import Segmentor
 # s = Segmentor('工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作')
 # s = Segmentor('这里有关天培的有关事迹')
 if __name__ == '__main__' :
-    s = Segmentor('李智伟高高兴兴和王晓薇出去玩。后来智伟和晓薇又单独去玩了。', hmm_config = True)
-    tokens = s.gen_tokens_parallel()
+    s = Segmentor('龚学平等领导, 邓颖超生前', hmm_config = True)
+    tokens = s.gen_tokens()
     for item in tokens:
         print(str(item))
 
