@@ -42,7 +42,7 @@ class Corpura:
                 if token not in index_dict :
                     index_dict[token] = index
                     index += 1
-        print('Find %d unique words' % len(index_dict))
+        print('\nFind %d unique words' % len(index_dict))
         return index_dict
 
     def corpura2average_bow(self, corpura) :
@@ -81,7 +81,7 @@ class BOW:
         v_b = other.word_vector
         sim = v_a.dot(v_b)/(numpy.linalg.norm(v_a) * 
                 numpy.linalg.norm(v_b))
-        print('Similarity is %f' % sim)
+        print('\rSimilarity is %f' % sim, end = '')
 
         if sim < threshold :
             return False, sim
@@ -98,7 +98,7 @@ class BOW:
         sim_bc = v_b.dot(v_c)/(numpy.linalg.norm(v_b) * 
                 numpy.linalg.norm(v_c))
         sim = sim_ac * (1 - weight) + sim_bc * weight
-        print('Similarity is %f' % sim)
+        print('\rSimilarity is %f' % sim, end = '')
 
         if sim < threshold :
             return False, sim

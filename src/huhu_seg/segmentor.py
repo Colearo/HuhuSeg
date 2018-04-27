@@ -347,7 +347,7 @@ class AmbiguityRes:
             return chunks[0]
         self.chunks = chunks
 
-        print('[WARNNING] No rule works')
+        print('\r[WARNNING] No rule works', end = '')
         return self.chunks[0]
 
 def gen_person_states_machine() :

@@ -71,7 +71,7 @@ class Topic :
         if len(topic) < 4 :
             topic = ''.join(seqs)
 
-        keywords = TextRank(content, hmm_config = True).extract_kw()
+        keywords = TextRank(content, hmm_config = True).extract_kw(5, False)
         return topic, keywords
 
 

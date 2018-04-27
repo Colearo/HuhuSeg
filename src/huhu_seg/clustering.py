@@ -197,17 +197,16 @@ class Cluster:
 
 class Timeline :
 
-    def __init__(self, clusters_inst) :
-        if not isinstance(clusters_inst, list) or not isinstance(clusters_inst[0], Cluster) :
-            print('[ERROR]Para clusters_inst should be a List([Cluster, ])')
-            return
-        self.clusters_inst = clusters_inst
+    def __init__(self, subtopic_clusters, content_attr) :
+        corpura = [corpus[content_attr] for corpus in sum([sub for subtopic_id, sub in subtopic_clusters], [])]
+        self.subtopic_clusters = subtopic_clusters
+        self.corpura_handle = Corpura(corpura)
+        self.content_attr = content_attr
         self.topic_centroids = list()
         self.topics = list()
 
-    def add_topic(self, corpura, cur_centroid, attr) :
+    def add_subtopic(self, cur_centroid, subtopic, attr) :
         THR = 0.55
-        topic = corpura
         max_sim = 0.0 
         max_sim_index = 0
         max_sim_topic_centroid = None
@@ -217,23 +216,20 @@ class Timeline :
                 max_sim = sim
                 max_sim_index = index
                 max_sim_topic_centroid = topic_centroid
+
         if len(self.topic_centroids) == 0 or max_sim < THR :
             topic_centroid = (cur_centroid, len(self.topic_centroids))
             self.topic_centroids.append(topic_centroid)
-            self.topics.append([(topic, attr),])
+            self.topics.append([(attr, subtopic),])
             return
+
         if max_sim >= THR :
-            self.topics[max_sim_index].append((topic, attr))
+            self.topics[max_sim_index].append((attr, subtopic))
             max_sim_topic_centroid.word_vector = (max_sim_topic_centroid.word_vector * (len(self.topics[max_sim_index]) - 1) + cur_centroid.word_vector) / len(self.topics[max_sim_index])
 
     def timeline_topics(self) :
-        corpura_handle = Corpura()
-        for cluster_inst in self.clusters_inst :
-            corpura_handle.merge_dict(cluster_inst.corpura_handle)
-
-        for cluster_inst in self.clusters_inst :
-            for cluster, attr in cluster_inst.clusters :
-                cur_centroid = corpura_handle.corpura2total_bow([c[cluster_inst.corpura_attr] for c in sum(cluster, [])])
-                self.add_topic(cluster, cur_centroid, attr)
+        for attr, sub in self.subtopic_clusters :
+            cur_centroid = self.corpura_handle.corpura2total_bow([item[self.content_attr] for item in sub])
+            self.add_subtopic(cur_centroid, sub, attr)
 
 
