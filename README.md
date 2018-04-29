@@ -6,7 +6,11 @@ Simple Chinese segmentor based on the four ambiguity-resolving rules by **MMSEG*
 同时HuhuSeg实现了一个简单但是非常高效的词图生成方式，由**HanLP**[3]的启发而来。同时核心词典直接使用了**jieba**[2]的词频词典。    
 HuhuSeg implemented a simple but graceful words-gram generation enlightened by **HanLP**[3]. And the dictionary(including the words tag and frequency) was included from **jieba**[2].  
 
-## Changelog
+## Changelog  
+### v0.4.29  
+1. Add hotspot words weight computing.
+2. Fix bugs.
+
 ### v0.3.26  
 1. Add support of named entity recognition based on 2-gram hmm model
 2. Fix bugs.

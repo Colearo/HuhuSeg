@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name='HuhuSeg',   
 
-    version='0.4.8',  
+    version='0.4.29',  
 
     description='Simple Chinese segmentator, keywords extractor and other examples',  
 
