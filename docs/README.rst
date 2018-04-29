@@ -13,6 +13,12 @@ HuhuSeg implemented a simple but graceful words-gram generation enlightened by *
 Change Log
 ----------
 
+**0.4.29** :
+
+1. Add hotspot words weight computing.
+2. Add extraction of topic-phrase for news based on hmm.
+3. Fix bugs.
+
 **0.3.26** :
 
 1. Add support of named entity recognition based on 2-gram hmm model
