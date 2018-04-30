@@ -5,7 +5,6 @@ import numpy
 import json
 from .segmentor import Segmentor
 from .textrank import TextRank
-from .tfidf import TFIDF
 
 class Corpura:
 
