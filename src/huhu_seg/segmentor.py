@@ -395,7 +395,7 @@ class Segmentor:
         for i in range(len(self.text)) :
             if self.text[i].strip() == '' :
                 continue
-            if self.is_alphabeta(self.text[i]) or self.is_digit(self.text[i]) or self.text[i] == '-' or (self.text[i] == '.' and self.is_digit(self.text[i + 1])) :
+            if self.is_alphabeta(self.text[i]) or self.is_digit(self.text[i]) or self.text[i] == '-' or (self.text[i] == '.' and i < len(self.text) - 1 and self.is_digit(self.text[i + 1])) :
                 if alpha_flag is False :
                     tmp = self.text[i]
                     alpha_flag = True
