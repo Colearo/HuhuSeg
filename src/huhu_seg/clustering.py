@@ -81,12 +81,11 @@ class Cluster:
 
         if min_size > 1 :
             for cluster in clusters :
-                temp = list()
+                total = 0
                 for c in cluster :
-                    if len(c) >= min_size :
-                        temp.append(c)
-                if len(temp) > 0 :
-                    self.clusters.append(temp)
+                    total += len(c)
+                if total >= min_size :
+                    self.clusters.append(cluster)
         else :
             self.clusters = clusters
 
